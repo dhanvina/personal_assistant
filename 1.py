@@ -4,6 +4,7 @@ import webbrowser
 import datetime
 import sys
 from selenium import webdriver
+import pywhatkit
 
 r = sr.Recognizer()
 m = sr.Microphone()
@@ -21,9 +22,10 @@ def speak(audio):
 
 
 def searchyoutube():
-    speak('content')
+    speak('content:')
     # query = str(input('command: '))
     query = myCommand()
+    print(f'You said {query}')
     # query = query.lower()
     browser = webdriver.Chrome()
     browser.get('https://youtube.com')
@@ -38,12 +40,8 @@ def myCommand():
     try:
         query = str(input('command: '))
         query = query.lower()
-        # query = r.recognize_google(query, language='en-in')
-        # print('User: ' + query + '\n')
-
     except Exception as ex:
         speak(ex)
-
     return query
 
 
@@ -51,17 +49,28 @@ def greetMe():
     present = int(datetime.datetime.now().hour)
     if 0 <= present < 12:
         speak('Good Morning!')
-
     elif 12 <= present < 18:
         speak('Good Afternoon!')
-
     elif present >= 18 and present != 0:
         speak('Good Evening!')
+
+def whatsapp():
+    try:
+        print('please enter mobile number')
+        no = input()
+        print('enter the message')
+        msg = input()
+        print('enter the time to send')
+        h,m = map(int,input().split())
+        pywhatkit.sendwhatmsg("+91"+no,msg,h, m,wait_time=10)
+        print("Sent")
+    except:
+        print('unexpected error occured')
 
 
 try:
     greetMe()
-    speak('Hello Sir, I am jarvis')
+    speak('Hello , I am jarvis')
     speak('How may I help you?')
     while True:
         with m as source:
@@ -70,18 +79,17 @@ try:
             value = r.recognize_google(audio).lower()
             speak('got it!')
             print(f"You said {value}")
-            if value == 'open google':
+            if value == 'exit' or value == 'quit' in value:
+                sys.exit()
+            elif value == 'open google' or value == 'google':
                 webbrowser.open('www.google.com')
             elif value == 'search youtube':
-                # speak('where do you want to search sir!')
                 searchyoutube()
-            elif value == 'abort' or 'exit' or 'quit' in value:
-                sys.exit()
-
-
-
-
+            elif value == 'open yahoo' or value == 'yahoo':
+                webbrowser.open('www.yahoo.com')
+            elif value == 'whatsapp':
+                whatsapp()
         except sr.UnknownValueError:
-            speak("Oops! Didn't catch that")
+            speak("didn't hear say again!!")
 except KeyboardInterrupt:
     pass
